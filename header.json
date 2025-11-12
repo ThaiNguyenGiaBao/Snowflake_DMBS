@@ -1,0 +1,38 @@
+{
+  "File": "File_0001",
+  "Patient": {
+    "PatientID": null,
+    "Sex": "M",
+    "Age": "053Y",
+    "Studies": {
+      "StudyInstanceUID": "1.3.12.2.1107.5.2.40.50233.30000016030907083527900000007",
+      "StudyDescription": "l-spine^lss",
+      "Series": [
+        {
+          "SeriesLabel": "Localizer_0001",
+          "SeriesInstanceUID": "1.3.12.2.1107.5.2.40.50233.2016030909181239634304374.0.0.0",
+          "SeriesNumber": 1,
+          "Modality": "MR",
+          "SeriesDescription": "localizer",
+          "BodyPartExamined": "LSPINE",
+          "Instances": [
+            { "InstanceNumber": 1, "SOPInstanceUID": "..." },
+            { "InstanceNumber": 8, "SOPInstanceUID": "..." }
+          ]
+        },
+        {
+          "SeriesLabel": "T1_TSE_SAG_320_0003",
+          "SeriesInstanceUID": "1.3.12.2.1107.5.2.40.50233.2016030909255713750805030.0.0.0",
+          "SeriesNumber": 3,
+          "Modality": "MR",
+          "SeriesDescription": "t1_tse_sag_320",
+          "BodyPartExamined": "LSPINE",
+          "Instances": [
+            { "InstanceNumber": 1, "SOPInstanceUID": "..." },
+            { "InstanceNumber": 15, "SOPInstanceUID": "..." }
+          ]
+        }
+      ]
+    }
+  }
+}
