@@ -1,10 +1,14 @@
 from typing import Any, Optional, Tuple
 import json
-import json
+from pydicom import Dataset
+
 import pydicom
 from pydicom.datadict import tag_for_keyword
 import snowflake.connector
 from io import BytesIO
+from typing import List, Dict
+import os
+
 
 from pydicom.multival import MultiValue
 from pydicom.valuerep import DSfloat, IS
@@ -129,6 +133,8 @@ class Command:
             self.get(ds, "SequenceName"),
             self.get(ds, "AngioFlag"),
         )
+
+    
 
     # ----------------------------
     # Helpers inside the class
