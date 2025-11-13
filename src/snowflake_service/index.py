@@ -5,8 +5,8 @@ class Snowflake:
     def __init__(self):
         self.conn = snowflake.connector.connect(
             user="tngiabao",
-            password="Giabao@22102652210265",
-            account="iw82368.ap-southeast-1",
+            password="Giabao22102652210265",
+            account="YIBVPQN-HF46742",
             warehouse="COMPUTE_WH",
             database="DBMS",
             schema="PUBLIC",

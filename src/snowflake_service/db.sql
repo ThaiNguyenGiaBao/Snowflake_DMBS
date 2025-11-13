@@ -110,6 +110,6 @@ CREATE OR REPLACE TABLE dicom_instance (
   sequence_name                    STRING,              -- (0018,0024)
   angio_flag                       STRING,              -- (0018,0025)
   transmit_coil_name               STRING,              -- (0018,1251)
-
+    
   CONSTRAINT pk_dicom_instance PRIMARY KEY (sop_instance_uid)
 );

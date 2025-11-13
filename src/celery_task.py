@@ -2,10 +2,6 @@ from celery import Celery
 import pydicom
 import snowflake.connector
 
-from pydicom import dcmread
-import os
-
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from .command.index import command_service
 from .command.index import (
     MERGE_PATIENT,
@@ -35,8 +31,8 @@ app.conf.update(
 
 conn = snowflake.connector.connect(
     user="tngiabao",
-    password="Giabao@22102652210265",
-    account="iw82368.ap-southeast-1",
+    password="Giabao210265210265",
+    account="nq21061.ap-southeast-1",
     warehouse="COMPUTE_WH",
     database="DBMS",
     schema="PUBLIC",

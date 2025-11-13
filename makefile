@@ -1,5 +1,5 @@
 worker:
-	source .venv/bin/activate &&  celery -A src.celery_task worker -l INFO --pool=gevent -c 2
+	source .venv/bin/activate &&  celery -A src.celery_task worker -l INFO 
 run:
 	source .venv/bin/activate &&  python -m src.main
 

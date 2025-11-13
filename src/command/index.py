@@ -1,4 +1,3 @@
-
 from typing import Any, Optional, Tuple
 import json
 import json
@@ -11,15 +10,16 @@ from pydicom.multival import MultiValue
 from pydicom.valuerep import DSfloat, IS
 
 from pydicom import dcmread
-import numpy as np
-from PIL import Image
-from ..minio.index import minio_service
+
+# import numpy as np
+# from PIL import Image
+# from ..minio.index import minio_service
 
 
 class Command:
     def __init__(self):
         print("Init command service")
-        
+
     def extract_patient(self, ds, patient_id) -> Tuple:
         return (
             patient_id,
@@ -69,37 +69,32 @@ class Command:
         rows = self.as_int(self.get(ds, "Rows"))
         cols = self.as_int(self.get(ds, "Columns"))
 
-        bytes_data = self.dicom_to_png_bytes(dicom_path)
-        file_name = dicom_path.split("/")[-1].replace(".ima", ".png")
-        minio_service.upload_image(file_name, bytes_data)
-        image_url = self.get_public_url(file_name)
+        # bytes_data = self.dicom_to_png_bytes(dicom_path)
+        # file_name = dicom_path.split("/")[-1].replace(".ima", ".png")
+        # minio_service.upload_image(file_name, bytes_data)
+        image_url = "image_url_placeholder"
 
         return (
             self.get(ds, "SOPInstanceUID"),
             self.get(ds, "SeriesInstanceUID"),
-
             self.get(ds, "SOPClassUID"),
             self.as_int(self.get(ds, "InstanceNumber")),
             self.to_variant(self.get(ds, "ImageType")),
-
             self.get(ds, "InstanceCreationDate"),
             self.get(ds, "InstanceCreationTime"),
             self.get(ds, "AcquisitionDate"),
             self.get(ds, "AcquisitionTime"),
             self.get(ds, "ContentDate"),
             self.get(ds, "ContentTime"),
-
             self.to_variant(self.get(ds, "ImagePositionPatient")),
             self.to_variant(self.get(ds, "ImageOrientationPatient")),
             self.as_float(self.get(ds, "SliceLocation")),
             self.get(ds, "FrameOfReferenceUID"),
-
             rows,
             cols,
             self.to_variant(self.get(ds, "PixelSpacing")),
             self.as_float(self.get(ds, "SliceThickness")),
             self.as_float(self.get(ds, "SpacingBetweenSlices") or 0.0),
-
             self.as_int(self.get(ds, "BitsAllocated")),
             self.as_int(self.get(ds, "BitsStored")),
             self.as_int(self.get(ds, "HighBit")),
@@ -107,10 +102,8 @@ class Command:
             self.get(ds, "PhotometricInterpretation"),
             self.as_int(self.get(ds, "SmallestImagePixelValue")),
             self.as_int(self.get(ds, "LargestImagePixelValue")),
-
             self.to_variant(self.get(ds, "WindowCenter")),
             self.to_variant(self.get(ds, "WindowWidth")),
-
             self.as_float(self.get(ds, "RepetitionTime")),
             self.as_float(self.get(ds, "EchoTime")),
             self.as_float(self.get(ds, "NumberOfAverages")),
@@ -135,7 +128,6 @@ class Command:
             self.get(ds, "MRAcquisitionType"),
             self.get(ds, "SequenceName"),
             self.get(ds, "AngioFlag"),
-            image_url
         )
 
     # ----------------------------
@@ -158,7 +150,9 @@ class Command:
         if value is None:
             return None
         if isinstance(value, MultiValue):
-            return json.dumps([self.to_variant(v) if isinstance(v, MultiValue) else v for v in value])
+            return json.dumps(
+                [self.to_variant(v) if isinstance(v, MultiValue) else v for v in value]
+            )
         if isinstance(value, (DSfloat, IS)):
             return json.dumps(float(value))
         if isinstance(value, (str, int, float, bool)):
@@ -182,21 +176,6 @@ class Command:
             return str(value)
         except Exception:
             return None
-
-    def dicom_to_png_bytes(self, dicom_path: str) -> bytes:
-        ds = dcmread(dicom_path)
-        arr = ds.pixel_array.astype(np.float32)
-        arr_min, arr_max = arr.min(), arr.max()
-        if arr_max > arr_min:
-            arr = (arr - arr_min) / (arr_max - arr_min) * 255.0
-        arr = arr.astype(np.uint8)
-        img = Image.fromarray(arr)
-        if img.mode != "L":
-            img = img.convert("L")
-        buffer = BytesIO()
-        img.save(buffer, format="PNG")
-        buffer.seek(0)
-        return buffer.getvalue()
 
     def get_public_url(self, file_name: str) -> str:
         return f"http://222.254.204.38:9001/api/v1/buckets/dbms/objects/download?preview=true&prefix={file_name}&version_id=null"
@@ -370,7 +349,6 @@ USING (
     %s AS mr_acquisition_type,
     %s AS sequence_name,
     %s AS angio_flag,
-    %s AS image_url
 ) s
 ON t.sop_instance_uid = s.sop_instance_uid
 WHEN MATCHED THEN UPDATE SET
@@ -425,8 +403,7 @@ WHEN MATCHED THEN UPDATE SET
   scan_options = s.scan_options,
   mr_acquisition_type = s.mr_acquisition_type,
   sequence_name = s.sequence_name,
-  angio_flag = s.angio_flag,
-  image_url = s.image_url
+  angio_flag = s.angio_flag
 WHEN NOT MATCHED THEN INSERT (
   sop_instance_uid, series_instance_uid, sop_class_uid, instance_number, image_type,
   instance_creation_date, instance_creation_time, acquisition_date, acquisition_time, content_date, content_time,
@@ -439,7 +416,7 @@ WHEN NOT MATCHED THEN INSERT (
   magnetic_field_strength, number_of_phase_encoding_steps, echo_train_length, percent_sampling,
   percent_phase_field_of_view, pixel_bandwidth, acquisition_matrix, in_plane_phase_encoding_direction,
   flip_angle, variable_flip_angle_flag, sar, dbdt, scanning_sequence, sequence_variant, scan_options,
-  mr_acquisition_type, sequence_name, angio_flag, image_url
+  mr_acquisition_type, sequence_name, angio_flag
 ) VALUES (
   s.sop_instance_uid, s.series_instance_uid, s.sop_class_uid, s.instance_number, PARSE_JSON(s.image_type),
   s.instance_creation_date, s.instance_creation_time, s.acquisition_date, s.acquisition_time, s.content_date, s.content_time,
@@ -452,7 +429,7 @@ WHEN NOT MATCHED THEN INSERT (
   s.magnetic_field_strength, s.number_of_phase_encoding_steps, s.echo_train_length, s.percent_sampling,
   s.percent_phase_field_of_view, s.pixel_bandwidth, PARSE_JSON(s.acquisition_matrix), s.in_plane_phase_encoding_direction,
   s.flip_angle, s.variable_flip_angle_flag, s.sar, s.dbdt, s.scanning_sequence, PARSE_JSON(s.sequence_variant), s.scan_options,
-  s.mr_acquisition_type, s.sequence_name, s.angio_flag, s.image_url
+  s.mr_acquisition_type, s.sequence_name, s.angio_flag
 );
 """
 
